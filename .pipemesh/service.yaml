@@ -6,6 +6,12 @@ stages: [build, staging, production]
 jobs:
   build:
     stage: build
+    # Turborepo's Vercel Remote Cache, no stored key: the job's PipeMesh
+    # identity token is exchanged for a short-lived Turborepo token (an
+    # OIDC policy on the vgonzalo Vercel team allows these build jobs).
+    setup:
+      - uses: turbo/remote-cache@1
+        with: { team: vgonzalo }
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
     script: |
       corepack enable

@@ -17,9 +17,12 @@ libs/http    ─┴─ every service
   with Turborepo (the service and the packages it depends on), then
   staging and production, which deploy only a bundle that is new to them
   (`consumed: changed` again).
-- `tools/fingerprint.mjs` — one file per service from Turborepo's task
-  hashes (`turbo run build --dry=json`): it changes exactly when a change
-  can change the service.
+- `turbo/fingerprint@1` (a PipeMesh component) — one file per service from
+  Turborepo's task hashes (`turbo run build --dry=json`): it changes
+  exactly when a change can change the service.
+- `turbo/remote-cache@1` — each service build reads and writes Vercel's
+  Remote Cache with no stored key: PipeMesh's job identity token is
+  exchanged for a short-lived Turborepo token.
 - `.pipemesh/checks.yaml` — pull requests build and test only what
   `turbo run --affected` selects against the merge base.
 

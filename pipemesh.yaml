@@ -4,7 +4,7 @@
 # can affect it.
 #
 # How: the graph job fingerprints every service from Turborepo's own task
-# hashes (tools/fingerprint.mjs, `turbo run build --dry=json`) and
+# hashes (turbo/fingerprint@1, `turbo run build --dry=json`) and
 # produces one entry per service. Each dispatch job consumes its service's
 # entry and dispatches when it changed since that job last dispatched — so
 # a service that sat out ten commits still sees all ten when the next one
@@ -17,11 +17,15 @@ dispatch:
   jobs:
     graph:
       stage: graph
-      image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
-      script: |
-        corepack enable
-        pnpm install --frozen-lockfile
-        node tools/fingerprint.mjs fingerprints
+      # Turborepo's own task hashes, one file per service (turbo/fingerprint@1).
+      uses: turbo/fingerprint@1
+      with:
+        image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+        install: corepack enable && pnpm install --frozen-lockfile
+        turbo: pnpm -s turbo
+        deployables: services/
+        # What the task hashes cannot see: how each service ships.
+        extra: .pipemesh/service.yaml deploy
       produces:
         orders: fingerprints/orders
         payments: fingerprints/payments
