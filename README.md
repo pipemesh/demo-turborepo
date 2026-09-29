@@ -20,9 +20,10 @@ libs/http    ─┴─ every service
 - `turbo/fingerprint@1` (a PipeMesh component) — one file per service from
   Turborepo's task hashes (`turbo run build --dry=json`): it changes
   exactly when a change can change the service.
-- `turbo/remote-cache@1` — each service build reads and writes Vercel's
-  Remote Cache with no stored key: PipeMesh's job identity token is
-  exchanged for a short-lived Turborepo token.
+- `vercel/turborepo-token@1` + `turbo/remote-cache@1` — each service
+  build reads and writes Vercel's Remote Cache with no stored key: the
+  job's PipeMesh identity is exchanged for a short-lived Turborepo token,
+  and turbo is pointed at the cache with it.
 - `.pipemesh/checks.yaml` — pull requests build and test only what
   `turbo run --affected` selects against the merge base.
 
