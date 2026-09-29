@@ -1,0 +1,16 @@
+{
+  "name": "inventory",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p . && esbuild src/main.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/inventory.mjs --log-level=warning",
+    "test": "node --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@demo/events": "workspace:*",
+    "@demo/http": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.0"
+  }
+}

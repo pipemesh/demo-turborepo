@@ -1,0 +1,12 @@
+# Pull request checks: build and test only what the change can affect,
+# from Turborepo's graph against the merge base.
+stages: [test]
+jobs:
+  affected:
+    stage: test
+    image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+    script: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      export TURBO_SCM_BASE=$(git merge-base "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" HEAD)
+      pnpm turbo run build test --affected

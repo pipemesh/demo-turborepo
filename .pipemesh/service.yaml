@@ -1,0 +1,35 @@
+# One service's pipeline. The dispatch pipeline registers it once per
+# service (orders, payments, …) with SERVICE set; each copy has its own
+# history, board and URL, and receives only the revisions Turborepo's
+# task graph says change that service.
+stages: [build, staging, production]
+jobs:
+  build:
+    stage: build
+    image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+    script: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      # The service and every workspace package it depends on: a change
+      # to libs/money builds and tests money, then orders.
+      pnpm turbo run build test --filter="$SERVICE..."
+      mkdir -p dist && cp services/$SERVICE/dist/$SERVICE.mjs dist/
+    produces:
+      bundle: { path: "dist/*.mjs" }
+  # esbuild bundles byte for byte: a change that leaves this service's
+  # bundle identical (a test, a comment, a type-only edit) builds and stops
+  # here — the deploys run when the bundle they ship is new to them, or
+  # when the deploy script changed since they last ran.
+  deploy_staging:
+    stage: staging
+    image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+    consumes: [build/bundle]
+    rules: [{ consumed: changed }, { changes: [deploy/**] }]
+    script: deploy/deploy.sh $SERVICE staging
+  deploy_prod:
+    stage: production
+    image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+    needs: [deploy_staging]
+    consumes: [build/bundle]
+    rules: [{ consumed: changed }, { changes: [deploy/**] }]
+    script: deploy/deploy.sh $SERVICE production
