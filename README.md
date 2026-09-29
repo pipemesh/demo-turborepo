@@ -31,3 +31,5 @@ Each service pipeline lives under the dispatch pipeline on PipeMesh:
 `/github.com/pipemesh/demo-turborepo/-/pipeline/<service>`.
 
 The same shape on Bazel: [pipemesh/demo-bazel](https://github.com/pipemesh/demo-bazel).
+
+Measured on pipemesh.dev: see the numbers in the commit history of this repository.
