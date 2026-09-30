@@ -12,11 +12,12 @@ libs/http    ─┴─ every service
 
 - `pipemesh.yaml` — the dispatch pipeline: a `graph` job fingerprints
   every service, and one `delegate: pipeline` job per service consumes
-  its fingerprint and dispatches when it changed (`consumed: changed`).
+  its fingerprint and dispatches when it changed (`sources: []`: the
+  entry is its only input).
 - `.pipemesh/service.yaml` — each service's own pipeline: build + test
   with Turborepo (the service and the packages it depends on), then
-  staging and production, which deploy only a bundle that is new to them
-  (`consumed: changed` again).
+  staging and production, which deploy only a bundle that is new to them,
+  or a changed deploy script (`sources: [deploy/**]`).
 - `turbo/fingerprint@1` (a PipeMesh component) — one file per service from
   Turborepo's task hashes (`turbo run build --dry=json`): it changes
   exactly when a change can change the service.
