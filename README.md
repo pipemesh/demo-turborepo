@@ -11,13 +11,13 @@ libs/http    ─┴─ every service
 ```
 
 - `pipemesh.yaml` — the dispatch pipeline: a `graph` build fingerprints
-  every service, and one `kind: pipeline` job per service consumes its
+  every service, and one `job_type: pipeline` job per service consumes its
   fingerprint and hands the revision over when it changed (it checks out
   nothing: the entry is its only input).
-- `.pipemesh/service.yaml` — each service's own pipeline: a `kind: build`
+- `.pipemesh/service.yaml` — each service's own pipeline: a `job_type: build`
   that builds and tests with Turborepo (the service and the packages it
   depends on, from the whole workspace), then staging and production, two
-  `kind: deploy` jobs that ship only a bundle that is new to them, or a
+  `job_type: deploy` jobs that ship only a bundle that is new to them, or a
   changed deploy script (`checkout: [deploy]`).
 - `turbo/fingerprint@1` (a Pipemesh component) — one file per service from
   Turborepo's task hashes (`turbo run build --dry=json`): it changes
@@ -27,7 +27,7 @@ libs/http    ─┴─ every service
   job's Pipemesh identity is exchanged for a short-lived Turborepo token,
   and turbo is pointed at the cache with it.
 - `.pipemesh/checks.yaml` — pull requests build and test only what
-  `turbo run --affected` selects against the merge base (a `kind: task`:
+  `turbo run --affected` selects against the merge base (a `job_type: task`:
   it reads the pull request, so it runs on every one).
 
 Try it: change `libs/money` and only orders, payments and catalog receive

@@ -5,7 +5,7 @@
 #
 # How: the graph job (a build) fingerprints every service from Turborepo's
 # own task hashes (turbo/fingerprint@1, `turbo run build --dry=json`) and
-# produces one entry per service. Each dispatch job (kind: pipeline)
+# produces one entry per service. Each dispatch job (job_type: pipeline)
 # consumes its service's entry and hands the revision over when it changed
 # since that job last did — so a service that sat out ten commits still
 # sees all ten when the next one changes it, and a README or a sibling's
@@ -14,10 +14,13 @@
 service: !include .pipemesh/service.yaml
 
 dispatch:
-  stages: [graph, dispatch]
+  type: pipeline
+  stages:
+    - graph
+    - dispatch
   jobs:
     graph:
-      kind: build   # checks out the whole workspace: turbo hashes all of it
+      job_type: build # checks out the whole workspace: turbo hashes all of it
       stage: graph
       # Turborepo's own task hashes, one file per service (turbo/fingerprint@1).
       uses: turbo/fingerprint@1
@@ -36,38 +39,50 @@ dispatch:
         catalog: fingerprints/catalog
 
     orders:
-      kind: pipeline   # checks out nothing: the entry it consumes is its input
+      job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
-      consumes: [graph/orders]
+      consumes:
+        - graph/orders
       body: !ref service
-      variables: { SERVICE: orders }
+      variables:
+        SERVICE: orders
     payments:
-      kind: pipeline   # checks out nothing: the entry it consumes is its input
+      job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
-      consumes: [graph/payments]
+      consumes:
+        - graph/payments
       body: !ref service
-      variables: { SERVICE: payments }
+      variables:
+        SERVICE: payments
     inventory:
-      kind: pipeline   # checks out nothing: the entry it consumes is its input
+      job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
-      consumes: [graph/inventory]
+      consumes:
+        - graph/inventory
       body: !ref service
-      variables: { SERVICE: inventory }
+      variables:
+        SERVICE: inventory
     notifications:
-      kind: pipeline   # checks out nothing: the entry it consumes is its input
+      job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
-      consumes: [graph/notifications]
+      consumes:
+        - graph/notifications
       body: !ref service
-      variables: { SERVICE: notifications }
+      variables:
+        SERVICE: notifications
     catalog:
-      kind: pipeline   # checks out nothing: the entry it consumes is its input
+      job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
-      consumes: [graph/catalog]
+      consumes:
+        - graph/catalog
       body: !ref service
-      variables: { SERVICE: catalog }
+      variables:
+        SERVICE: catalog
 
 pipemesh:
   pipelines:
     pipeline: !ref dispatch
   workflows:
-    checks: { body: !include .pipemesh/checks.yaml, on: pull_request }
+    checks:
+      body: !include .pipemesh/checks.yaml
+      on: pull_request
