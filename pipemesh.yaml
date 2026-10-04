@@ -1,14 +1,15 @@
-# A Turborepo monorepo on PipeMesh: one dispatch pipeline fans each
+# A Turborepo monorepo on Pipemesh: one dispatch pipeline fans each
 # revision out to a pipeline per service, and a service's pipeline
 # receives the revision only when Turborepo's task graph says the change
 # can affect it.
 #
-# How: the graph job fingerprints every service from Turborepo's own task
-# hashes (turbo/fingerprint@1, `turbo run build --dry=json`) and
-# produces one entry per service. Each dispatch job consumes its service's
-# entry and dispatches when it changed since that job last dispatched — so
-# a service that sat out ten commits still sees all ten when the next one
-# changes it, and a README or a sibling's change reaches no one.
+# How: the graph job (a build) fingerprints every service from Turborepo's
+# own task hashes (turbo/fingerprint@1, `turbo run build --dry=json`) and
+# produces one entry per service. Each dispatch job (kind: pipeline)
+# consumes its service's entry and hands the revision over when it changed
+# since that job last did — so a service that sat out ten commits still
+# sees all ten when the next one changes it, and a README or a sibling's
+# change reaches no one.
 
 service: !include .pipemesh/service.yaml
 
@@ -16,6 +17,7 @@ dispatch:
   stages: [graph, dispatch]
   jobs:
     graph:
+      kind: build   # checks out the whole workspace: turbo hashes all of it
       stage: graph
       # Turborepo's own task hashes, one file per service (turbo/fingerprint@1).
       uses: turbo/fingerprint@1
@@ -34,40 +36,35 @@ dispatch:
         catalog: fingerprints/catalog
 
     orders:
+      kind: pipeline   # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes: [graph/orders]
-      paths: []   # reads only the entry it consumes
-      delegate:
-        type: pipeline
-        params: { body: !ref service, variables: { SERVICE: orders } }
+      body: !ref service
+      variables: { SERVICE: orders }
     payments:
+      kind: pipeline   # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes: [graph/payments]
-      paths: []   # reads only the entry it consumes
-      delegate:
-        type: pipeline
-        params: { body: !ref service, variables: { SERVICE: payments } }
+      body: !ref service
+      variables: { SERVICE: payments }
     inventory:
+      kind: pipeline   # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes: [graph/inventory]
-      paths: []   # reads only the entry it consumes
-      delegate:
-        type: pipeline
-        params: { body: !ref service, variables: { SERVICE: inventory } }
+      body: !ref service
+      variables: { SERVICE: inventory }
     notifications:
+      kind: pipeline   # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes: [graph/notifications]
-      paths: []   # reads only the entry it consumes
-      delegate:
-        type: pipeline
-        params: { body: !ref service, variables: { SERVICE: notifications } }
+      body: !ref service
+      variables: { SERVICE: notifications }
     catalog:
+      kind: pipeline   # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes: [graph/catalog]
-      paths: []   # reads only the entry it consumes
-      delegate:
-        type: pipeline
-        params: { body: !ref service, variables: { SERVICE: catalog } }
+      body: !ref service
+      variables: { SERVICE: catalog }
 
 pipemesh:
   pipelines:

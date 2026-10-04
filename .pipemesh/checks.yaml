@@ -3,7 +3,12 @@
 stages: [test]
 jobs:
   affected:
+    # A task: it reads the pull request's merge base, so it runs on every
+    # pull request revision. It checks out the whole workspace (pnpm and
+    # turbo read every package); history stays complete for the merge base.
+    kind: task
     stage: test
+    checkout: true
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
     script: |
       corepack enable
