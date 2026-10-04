@@ -2,13 +2,17 @@
 # service (orders, payments, …) with SERVICE set; each copy has its own
 # history, board and URL, and receives only the revisions Turborepo's
 # task graph says change that service.
-stages: [build, staging, production]
+type: pipeline
+stages:
+  - build
+  - staging
+  - production
 jobs:
   build:
     # Checks out the whole workspace: pnpm installs every package from the
     # root lockfile, and turbo builds the service with the libraries it
     # depends on.
-    kind: build
+    job_type: build
     stage: build
     # Vercel Remote Cache, no stored key: vercel/turborepo-token@1 turns
     # the job's Pipemesh identity into a short-lived Turborepo token (an
@@ -16,9 +20,11 @@ jobs:
     # turbo/remote-cache@1 points turbo at the cache with it.
     setup:
       - uses: vercel/turborepo-token@1
-        with: { team: vgonzalo }
+        with:
+          team: vgonzalo
       - uses: turbo/remote-cache@1
-        with: { team: vgonzalo }
+        with:
+          team: vgonzalo
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
     script: |
       corepack enable
@@ -28,23 +34,29 @@ jobs:
       pnpm turbo run build test --filter="$SERVICE..."
       mkdir -p dist && cp services/$SERVICE/dist/$SERVICE.mjs dist/
     produces:
-      bundle: { path: "dist/*.mjs" }
+      bundle:
+        path: "dist/*.mjs"
   # esbuild bundles byte for byte: a change that leaves this service's
   # bundle identical (a test, a comment, a type-only edit) builds and stops
   # here — the deploys run when the bundle they ship is new to them, or
   # when the deploy script they check out changed since they last ran.
   deploy_staging:
-    kind: deploy
+    job_type: deploy
     stage: staging
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
-    consumes: [build/bundle]
-    checkout: [deploy]
+    consumes:
+      - build/bundle
+    checkout:
+      - deploy
     script: deploy/deploy.sh $SERVICE staging
   deploy_prod:
-    kind: deploy
+    job_type: deploy
     stage: production
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
-    needs: [deploy_staging]
-    consumes: [build/bundle]
-    checkout: [deploy]
+    needs:
+      - deploy_staging
+    consumes:
+      - build/bundle
+    checkout:
+      - deploy
     script: deploy/deploy.sh $SERVICE production
