@@ -42,6 +42,7 @@ jobs:
   # when the deploy script they check out changed since they last ran.
   deploy_staging:
     job_type: deploy
+    production: false
     stage: staging
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
     consumes:
@@ -51,6 +52,7 @@ jobs:
     script: deploy/deploy.sh $SERVICE staging
   deploy_prod:
     job_type: deploy
+    production: true
     stage: production
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
     needs:
