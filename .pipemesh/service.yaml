@@ -16,7 +16,8 @@ jobs:
     stage: build
     # Vercel Remote Cache, no stored key: vercel/turborepo-token@1 turns
     # the job's Pipemesh identity into a short-lived Turborepo token (an
-    # OIDC policy on the vgonzalo Vercel team allows these build jobs), and
+    # OIDC policy on the vgonzalo Vercel team allows these build jobs, by
+    # the subjects the repository's Settings → Job identity lists), and
     # turbo/remote-cache@1 points turbo at the cache with it.
     setup:
       - uses: vercel/turborepo-token@1
