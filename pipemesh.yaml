@@ -42,7 +42,7 @@ dispatch:
       job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes:
-        - graph/orders
+        FINGERPRINT: graph/orders
       body: !ref service
       variables:
         SERVICE: orders
@@ -50,7 +50,7 @@ dispatch:
       job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes:
-        - graph/payments
+        FINGERPRINT: graph/payments
       body: !ref service
       variables:
         SERVICE: payments
@@ -58,7 +58,7 @@ dispatch:
       job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes:
-        - graph/inventory
+        FINGERPRINT: graph/inventory
       body: !ref service
       variables:
         SERVICE: inventory
@@ -66,7 +66,7 @@ dispatch:
       job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes:
-        - graph/notifications
+        FINGERPRINT: graph/notifications
       body: !ref service
       variables:
         SERVICE: notifications
@@ -74,7 +74,7 @@ dispatch:
       job_type: pipeline # checks out nothing: the entry it consumes is its input
       stage: dispatch
       consumes:
-        - graph/catalog
+        FINGERPRINT: graph/catalog
       body: !ref service
       variables:
         SERVICE: catalog
