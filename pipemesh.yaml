@@ -5,8 +5,8 @@
 #
 # How: the graph job (a build) fingerprints every service from Turborepo's
 # own task hashes (turbo/fingerprint@1, `turbo run build --dry=json`) and
-# produces one entry per service. Each dispatch job (job_type: pipeline)
-# consumes its service's entry and hands the revision over when it changed
+# produces one artifact per service. Each dispatch job (job_type: pipeline)
+# watches its service's artifact and hands the revision over when it changed
 # since that job last did — so a service that sat out ten commits still
 # sees all ten when the next one changes it, and a README or a sibling's
 # change reaches no one.
@@ -39,42 +39,47 @@ dispatch:
         catalog: fingerprints/catalog
 
     orders:
-      job_type: pipeline # checks out nothing: the entry it consumes is its input
+      job_type: pipeline
       stage: dispatch
-      consumes:
-        FINGERPRINT: graph/orders
+      fingerprint:
+        artifacts: [graph/orders]
+        checkout: false
       body: !ref service
       variables:
         SERVICE: orders
     payments:
-      job_type: pipeline # checks out nothing: the entry it consumes is its input
+      job_type: pipeline
       stage: dispatch
-      consumes:
-        FINGERPRINT: graph/payments
+      fingerprint:
+        artifacts: [graph/payments]
+        checkout: false
       body: !ref service
       variables:
         SERVICE: payments
     inventory:
-      job_type: pipeline # checks out nothing: the entry it consumes is its input
+      job_type: pipeline
       stage: dispatch
-      consumes:
-        FINGERPRINT: graph/inventory
+      fingerprint:
+        artifacts: [graph/inventory]
+        checkout: false
       body: !ref service
       variables:
         SERVICE: inventory
     notifications:
-      job_type: pipeline # checks out nothing: the entry it consumes is its input
+      job_type: pipeline
       stage: dispatch
-      consumes:
-        FINGERPRINT: graph/notifications
+      fingerprint:
+        artifacts: [graph/notifications]
+        checkout: false
       body: !ref service
       variables:
         SERVICE: notifications
     catalog:
-      job_type: pipeline # checks out nothing: the entry it consumes is its input
+      job_type: pipeline
       stage: dispatch
-      consumes:
-        FINGERPRINT: graph/catalog
+      fingerprint:
+        artifacts: [graph/catalog]
+        checkout: false
       body: !ref service
       variables:
         SERVICE: catalog
