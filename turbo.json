@@ -13,7 +13,13 @@
       "dependsOn": [
         "^build"
       ],
-      "outputs": []
+      "outputs": [
+        "reports/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/tools/markdown-reporter.mjs"
+      ]
     }
   }
 }

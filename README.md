@@ -26,6 +26,10 @@ libs/http    ─┴─ every service
   build reads and writes Vercel's Remote Cache with no stored key: the
   job's Pipemesh identity is exchanged for a short-lived Turborepo token,
   and turbo is pointed at the cache with it.
+- **Test reports** — every package's `test` script also writes its
+  results as Markdown (`tools/markdown-reporter.mjs`, a `node:test`
+  reporter; a cached test task restores it), and each service's build shows
+  its own in the job panel's Reports tab (`reports:`), passing or failing.
 - `.pipemesh/checks.yaml` — pull requests build and test only what
   `turbo run --affected` selects against the merge base (a `job_type: task`:
   it reads the pull request, so it runs on every one).

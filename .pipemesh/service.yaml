@@ -27,16 +27,29 @@ jobs:
         with:
           team: vgonzalo
     image: node:22-bookworm@sha256:363e1587494626837fa7f9a23bdb453d13b0ff3c67c705c2805cfc69c2d2fad7
+    # The service's test report is kept whether its tests pass or not: a
+    # failing run is when it matters most. Turborepo restores it with a
+    # cached test task (outputs in turbo.json).
     script: |
       corepack enable
       pnpm install --frozen-lockfile
       # The service and every workspace package it depends on: a change
       # to libs/money builds and tests money, then orders.
-      pnpm turbo run build test --filter="$SERVICE..."
+      rc=0
+      pnpm turbo run build test --filter="$SERVICE..." || rc=$?
+      mkdir -p reports && cp services/$SERVICE/reports/tests.md reports/ 2>/dev/null || true
+      [ "$rc" -eq 0 ] || exit "$rc"
       mkdir -p dist && cp services/$SERVICE/dist/$SERVICE.mjs dist/
     produces:
       bundle:
         path: "dist/*.mjs"
+    # The Reports tab: the service's node:test results as Markdown
+    # (tools/markdown-reporter.mjs). No job consumes a report and it is in
+    # no fingerprint.
+    reports:
+      tests:
+        path: reports/tests.md
+        title: Tests
   # esbuild bundles byte for byte: a change that leaves this service's
   # bundle identical (a test, a comment, a type-only edit) builds and stops
   # here — the deploys run when the bundle they ship is new to them, or
