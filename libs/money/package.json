@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "test": "node --test \"src/**/*.test.ts\""
+    "test": "mkdir -p reports && node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=../../tools/markdown-reporter.mjs --test-reporter-destination=reports/tests.md \"src/**/*.test.ts\""
   },
   "devDependencies": {
     "@types/node": "24.19.0"
