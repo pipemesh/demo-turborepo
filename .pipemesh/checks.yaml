@@ -1,5 +1,5 @@
-# Pull request checks: build and test only what the change can affect,
-# from Turborepo's graph against the merge base.
+# Pull request checks: build and test every package. No merge base is
+# needed, and the checkout stays one commit deep.
 type: workflow
 stages:
   - test
@@ -7,8 +7,8 @@ jobs:
   affected:
     # A build over the whole workspace (pnpm and turbo read every
     # package): a revision with the same tree as an earlier pass reuses it.
-    # What it builds and tests is chosen against the merge base; history
-    # stays complete for it.
+    # No remote cache: Vercel's token would let proposed code write what
+    # the default branch's builds read.
     job_type: build
     stage: test
     checkout: true
@@ -16,5 +16,4 @@ jobs:
     script: |
       corepack enable
       pnpm install --frozen-lockfile
-      export TURBO_SCM_BASE=$(git merge-base "origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" HEAD)
-      pnpm turbo run build test --affected
+      pnpm turbo run build test
