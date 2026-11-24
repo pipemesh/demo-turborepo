@@ -45,7 +45,7 @@ dispatch:
         artifacts: [graph/orders]
         checkout: false
       body: !ref service
-      variables:
+      env:
         SERVICE: orders
     payments:
       job_type: pipeline
@@ -54,7 +54,7 @@ dispatch:
         artifacts: [graph/payments]
         checkout: false
       body: !ref service
-      variables:
+      env:
         SERVICE: payments
     inventory:
       job_type: pipeline
@@ -63,7 +63,7 @@ dispatch:
         artifacts: [graph/inventory]
         checkout: false
       body: !ref service
-      variables:
+      env:
         SERVICE: inventory
     notifications:
       job_type: pipeline
@@ -72,7 +72,7 @@ dispatch:
         artifacts: [graph/notifications]
         checkout: false
       body: !ref service
-      variables:
+      env:
         SERVICE: notifications
     catalog:
       job_type: pipeline
@@ -81,7 +81,7 @@ dispatch:
         artifacts: [graph/catalog]
         checkout: false
       body: !ref service
-      variables:
+      env:
         SERVICE: catalog
 
 pipemesh:
